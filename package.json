@@ -1,0 +1,16 @@
+{
+  "name": "shneakypete-tests",
+  "version": "1.0.0",
+  "description": "End-to-end Playwright tests for shneakypete.neocities.org",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:mobile": "playwright test --project=mobile"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "typescript": "^5.4.0"
+  }
+}
