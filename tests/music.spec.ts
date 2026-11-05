@@ -15,14 +15,15 @@ test.describe('Music Page', () => {
     await music.expectAllImagesLoaded();
   });
 
-  // Uncomment and adjust once audio/embeds exist on the page:
-  //
-  // test('audio players are present and ready', async ({ page }) => {
-  //   const music = new MusicPage(page);
-  //   await music.goto();
-  //   await music.expectAudioPlayersPresent();
-  //   await waitForMediaReady(page);
-  // });
+  test('audio player is present and ready', async ({ page }) => {
+    // Page currently has one <audio> element (/LOVE.wav).
+    const music = new MusicPage(page);
+    await music.goto();
+    await music.expectAudioPlayersPresent(1);
+    await waitForMediaReady(page);
+  });
+
+  // Spotify embeds don't exist on the page yet. Re-enable when they're added:
   //
   // test('spotify embeds load', async ({ page }) => {
   //   const music = new MusicPage(page);

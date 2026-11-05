@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { BasePage, NAV_LINKS } from '../pages/BasePage';
+import { BasePage, NAV_LINKS, pathPattern } from '../pages/BasePage';
 import { checkAllNavLinksResolve } from '../utils/helpers';
 
 test.describe('Navigation', () => {
@@ -7,15 +7,17 @@ test.describe('Navigation', () => {
     await checkAllNavLinksResolve(page);
   });
 
-  test('nav bar is present on every page', async ({ page }) => {
-    const base = new BasePage(page);
-
-    for (const { path, label } of NAV_LINKS) {
+  test('every nav link is visible on every page', async ({ page }) => {
+    // Stricter than before: each label must be a visible link on each page,
+    // instead of passing if the Home link alone is visible.
+    for (const { path } of NAV_LINKS) {
       await page.goto(path);
-      const navLink = page.getByRole('link', { name: label });
-      // The current page link may not be an anchor — check at least one nav link is visible
-      const homeLink = page.getByRole('link', { name: 'Home' });
-      await expect(homeLink.or(navLink)).toBeVisible();
+      for (const { label } of NAV_LINKS) {
+        await expect(
+          page.getByRole('link', { name: label }).first(),
+          `"${label}" link missing on ${path}`
+        ).toBeVisible();
+      }
     }
   });
 
@@ -31,7 +33,7 @@ test.describe('Navigation', () => {
       await base.clickNavLink(label);
       await page.waitForLoadState('networkidle');
       const link = NAV_LINKS.find(l => l.label === label)!;
-      await expect(page).toHaveURL(new RegExp(link.path.replace('/', '\\/').replace('.', '\\.')));
+      await expect(page).toHaveURL(pathPattern(link.path));
     }
   });
 
@@ -41,9 +43,9 @@ test.describe('Navigation', () => {
     await page.goto('/photos.html');
 
     await page.goBack();
-    await expect(page).toHaveURL(/music\.html/);
+    await expect(page).toHaveURL(pathPattern('/music.html'));
 
     await page.goForward();
-    await expect(page).toHaveURL(/photos\.html/);
+    await expect(page).toHaveURL(pathPattern('/photos.html'));
   });
 });

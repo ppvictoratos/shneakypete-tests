@@ -35,7 +35,9 @@ export class MusicPage extends BasePage {
   async goto() { await super.goto('/music.html'); }
 
   async expectLoaded() {
-    await this.expectPageLoaded('music');
+    // Site currently uses one shared title on this page ("The web site of shneakypete").
+    // Change to 'music' once per-page titles exist.
+    await this.expectPageLoaded('shneakypete');
   }
 
   async expectAudioPlayersPresent(count?: number) {

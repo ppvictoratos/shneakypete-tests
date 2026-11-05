@@ -1,32 +1,35 @@
 import { Page, expect } from '@playwright/test';
-import { NAV_LINKS } from '../pages/BasePage';
+import { NAV_LINKS, SITE_URL } from '../pages/BasePage';
 
 /**
  * Verify every nav link resolves to a 200 (no broken links).
+ * Uses the same SITE_URL as the rest of the suite instead of a second hardcoded copy.
  */
 export async function checkAllNavLinksResolve(page: Page) {
   for (const { path } of NAV_LINKS) {
-    const response = await page.request.get(`https://shneakypete.neocities.org${path}`);
+    const response = await page.request.get(`${SITE_URL}${path}`);
     expect(response.status(), `Nav link ${path} should return 200`).toBe(200);
   }
 }
 
 /**
  * Collect all external links on the current page and verify none are broken.
- * Skips mailto: and javascript: hrefs.
+ * Only network failures are tolerated (logged). Assertion failures always fail the test.
  */
 export async function checkExternalLinks(page: Page) {
   const links = await page.locator('a[href^="http"]').all();
   for (const link of links) {
     const href = await link.getAttribute('href');
     if (!href) continue;
+
+    let status: number | null = null;
     try {
-      const response = await page.request.get(href);
-      expect(response.status(), `External link ${href} should not 404`).not.toBe(404);
+      status = (await page.request.get(href)).status();
     } catch {
-      // Network errors on external links are non-fatal — just log
-      console.warn(`Could not reach external link: ${href}`);
+      console.warn(`Could not reach external link (network error): ${href}`);
+      continue;
     }
+    expect(status, `External link ${href} should not 404`).not.toBe(404);
   }
 }
 

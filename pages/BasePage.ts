@@ -12,6 +12,16 @@ export const NAV_LINKS = [
 
 export type NavLabel = typeof NAV_LINKS[number]['label'];
 
+/**
+ * Neocities 301-redirects `/music.html` to `/music` (and vice versa depending
+ * on the link), so URL assertions must accept both forms.
+ */
+export function pathPattern(path: string): RegExp {
+  const clean = path.replace(/\.html$/, '');
+  const escaped = clean.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&');
+  return new RegExp(`${escaped}(\\.html)?$`);
+}
+
 export class BasePage {
   readonly page: Page;
   readonly nav: Locator;
